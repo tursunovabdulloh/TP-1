@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { FaEdit, FaTrash, FaCheck } from "react-icons/fa";
 
 interface Todo {
   id: number;
@@ -24,7 +25,8 @@ const TodoList: React.FC = () => {
     localStorage.setItem("todos", JSON.stringify(todos));
   }, [todos]);
 
-  const handleAddTodo = () => {
+  const handleAddTodo = (e: React.FormEvent) => {
+    e.preventDefault();
     if (newTodo.trim() === "") return;
     const date = new Date().toLocaleString();
     const newTodoItem: Todo = {
@@ -34,7 +36,7 @@ const TodoList: React.FC = () => {
       date: date,
     };
     setTodos([...todos, newTodoItem]);
-    setNewTodo(""); // Clear newTodo input after adding
+    setNewTodo("");
   };
 
   const handleDeleteTodo = (id: number) => {
@@ -64,13 +66,13 @@ const TodoList: React.FC = () => {
     );
   };
 
-  console.log(todos);
-
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="bg-white p-8 rounded shadow-lg w-full max-w-md">
-        <h1 className="text-2xl font-bold mb-4 text-center">To-Do List</h1>
-        <div className="flex mb-4">
+    <div className="min-h-screen flex flex-col items-center justify-center">
+      <h1 className="text-5xl font-bold text-center text-gray-600 tracking-wider mb-8">
+        TODO APP
+      </h1>
+      <div className="bg-[#fff] p-8 rounded shadow-lg xl:w-[900px] md:w-[580px]">
+        <form onSubmit={handleAddTodo} className="flex mb-4">
           <input
             type="text"
             value={editTodo ? editTodo.text : newTodo}
@@ -79,11 +81,12 @@ const TodoList: React.FC = () => {
                 ? setEditTodo({ ...editTodo, text: e.target.value })
                 : setNewTodo(e.target.value)
             }
-            className="w-full px-3 py-2 border rounded mr-2"
+            className="input input-bordered w-full input-info px-3 py-6 border rounded mr-2"
             placeholder="Add a new task..."
           />
           {editTodo ? (
             <button
+              type="button"
               onClick={handleUpdateTodo}
               className="bg-blue-500 text-white px-4 py-2 rounded"
             >
@@ -91,45 +94,50 @@ const TodoList: React.FC = () => {
             </button>
           ) : (
             <button
-              onClick={handleAddTodo}
-              className="bg-green-500 text-white px-4 py-2 rounded"
+              type="submit"
+              className="bg-error text-white px-6 py-2 rounded"
             >
               Add
             </button>
           )}
-        </div>
-        <ul>
+        </form>
+        <ul className="space-y-4">
           {Array.isArray(todos) ? (
             todos.map((todo) => (
               <li
                 key={todo.id}
-                className={`flex justify-between items-center p-2 border-b ${
-                  todo.completed ? "line-through text-gray-500" : ""
+                className={`flex justify-between items-center p-4 border rounded shadow-sm ${
+                  todo.completed ? "bg-gray-200" : "bg-white"
                 }`}
               >
-                <div>
-                  <input
-                    type="checkbox"
-                    checked={todo.completed}
-                    onChange={() => handleToggleComplete(todo.id)}
-                    className="mr-2"
+                <div className="flex items-center">
+                  <FaCheck
+                    onClick={() => handleToggleComplete(todo.id)}
+                    className={`mr-4 cursor-pointer text-[25px] ${
+                      todo.completed ? "text-green-500" : "text-gray-400"
+                    }`}
                   />
-                  {todo.text}
+                  <span
+                    className={`flex-1 ${
+                      todo.completed ? "line-through text-gray-500" : ""
+                    }`}
+                  >
+                    {todo.text}
+                  </span>
                 </div>
                 <div className="text-sm text-gray-400">{todo.date}</div>
-                <div className="flex">
-                  <button
+                <div className="flex items-center ">
+                  <FaEdit
                     onClick={() => handleEditTodo(todo)}
-                    className="text-blue-500 mr-2"
-                  >
-                    Edit
-                  </button>
-                  <button
+                    className={`text-blue-500 mr-2 cursor-pointer text-[30px] ${
+                      todo.completed ? "cursor-not-allowed" : ""
+                    }`}
+                    style={{ pointerEvents: todo.completed ? "none" : "auto" }}
+                  />
+                  <FaTrash
                     onClick={() => handleDeleteTodo(todo.id)}
-                    className="text-red-500"
-                  >
-                    Delete
-                  </button>
+                    className="text-red-500 cursor-pointer mt-1 text-[30px] "
+                  />
                 </div>
               </li>
             ))
